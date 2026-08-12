@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.DS_Store
+.venv/
+venv/
+
+# downloaded datasets (auto-downloaded by src/dataset.py)
+data/
+
+# generated artifacts
+out/
+results/*.png
