@@ -81,7 +81,7 @@ python3 experiments/cnn_seed_sweep.py        # is the CNN edge real? (no)
 python3 experiments/adversarial_study.py
 ```
 
-## What I learned (the honest version)
+## What I learned
 
 - **Numerical gradient checking is non-negotiable.** It caught a real
   bug: the common Softmax-backward shortcut (returning `dout`
