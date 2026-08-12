@@ -24,6 +24,12 @@ than asserted. I then showed the standard defence (adversarial
 training) raises survival under attack from 16% to 54%, and that
 adversarial examples transfer between different architectures.
 
+![FGSM demo: original, adversarial, perturbation x10](docs/fgsm_demo.png)
+
+*From `demo.py`: a correctly-classified "4" (86.4% confidence),
+the same image after an FGSM step bounded by 0.1 per pixel — now
+classified as a "9" — and the perturbation itself magnified 10×.*
+
 ## What's in the repo
 
 ```

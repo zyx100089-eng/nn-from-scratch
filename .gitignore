@@ -9,6 +9,6 @@ venv/
 # downloaded datasets (auto-downloaded by src/dataset.py)
 data/
 
-# generated artifacts
+# generated artifacts (demo output images are committed for the README)
 out/
-results/*.png
+!docs/
