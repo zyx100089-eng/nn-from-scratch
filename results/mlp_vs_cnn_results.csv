@@ -1,0 +1,5 @@
+dataset,architecture,test_acc,params
+MNIST,MLP,0.9586,235146
+MNIST,CNN,0.9779,27562
+Fashion-MNIST,MLP,0.8547,235146
+Fashion-MNIST,CNN,0.8563,27562

@@ -1,7 +1,6 @@
 # Neural Networks from Scratch, and What They Taught Me About Adversarial Examples
 
-*A project report. Written for anyone reading the repo — including, I
-hope, an admissions tutor.*
+*A project report.*
 
 ---
 

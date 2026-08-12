@@ -1,0 +1,4 @@
+activation,test_acc,final_train_loss,final_val_loss
+ReLU,0.9385,0.0551,0.2026
+Sigmoid,0.9105,0.1598,0.2795
+Tanh,0.928,0.0773,0.2307

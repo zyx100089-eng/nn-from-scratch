@@ -1,0 +1,4 @@
+config,label,test_acc,final_train_loss,final_val_loss,train_val_gap
+no_reg,No regularisation,0.856,0.0003,0.6342,0.6339
+dropout,Dropout (p=0.5),0.876,0.0354,0.533,0.4975
+l2,L2 (lambda=0.005),0.8415,0.0578,0.518,0.4603
