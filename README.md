@@ -1,5 +1,9 @@
 # Neural Networks from Scratch, and Adversarial Examples
 
+[![Tests](https://github.com/zyx100089-eng/nn-from-scratch/actions/workflows/tests.yml/badge.svg)](https://github.com/zyx100089-eng/nn-from-scratch/actions/workflows/tests.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 > **Full write-up:** [report/report.md](report/report.md) — the
 > complete project report: the autodiff engine, every layer's
 > hand-derived backward, all experiments with tables, and the
