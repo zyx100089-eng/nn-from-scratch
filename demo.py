@@ -42,21 +42,55 @@ def build_model(seed=1):
 
 
 def _save_grid(images: list[tuple[str, np.ndarray]], path: str, title: str) -> None:
-    """Render a row of 28x28 images side by side, saved to disk."""
+    """Render a row of 28x28 images side by side, saved to disk.
+
+    Panels whose label starts with '|' (e.g. "|perturbation| x10")
+    are drawn with a diverging blue-white-red colormap so the signed
+    structure of the perturbation is visible; everything else is
+    grayscale.
+    """
     os.makedirs(OUT_DIR, exist_ok=True)
     cells = []
     for label, img in images:
-        arr = (np.clip(img, 0, 1).reshape(28, 28) * 255).astype(np.uint8)
-        cells.append(Image.fromarray(arr, "L"))
+        arr = np.clip(img, 0, 1).reshape(28, 28)
+        if label.startswith("|"):
+            arr = (arr * 2 - 1)  # map [0,1] -> [-1,1] for the colormap
+            rgb = _diverging_colormap(arr)
+            cell = Image.fromarray(rgb, "RGB")
+        else:
+            cell = Image.fromarray((arr * 255).astype(np.uint8), "L")
+        # upscale 5x (bilinear) so the 28x28 panels are readable
+        cell = cell.resize((cell.width * 5, cell.height * 5), Image.BILINEAR)
+        cells.append(cell)
     widths = [c.width for c in cells]
     height = max(c.height for c in cells)
-    canvas = Image.new("L", (sum(widths) + 12 * len(cells), height + 12), 255)
+    canvas = Image.new("RGB", (sum(widths) + 12 * len(cells), height + 12), 255)
     x = 0
     for c in cells:
         canvas.paste(c, (x + 6, 6))
         x += c.width + 12
     canvas.save(path)
     print(f"  [{title}] -> {path}")
+
+
+def _diverging_colormap(v: np.ndarray) -> np.ndarray:
+    """Blue-white-red colormap for signed values in [-1, 1].
+
+    v = -1 -> deep blue, v = 0 -> white, v = +1 -> deep red.
+    """
+    v = np.clip(v, -1, 1)
+    neg = v < 0
+    pos = v > 0
+    out = np.zeros(v.shape + (3,), dtype=np.uint8)
+    # blue channel dominates for negative values
+    out[neg, 2] = (255 * (1 + v[neg])).astype(np.uint8)
+    out[neg, 0] = (255 * (1 + v[neg]) * 0.2).astype(np.uint8)
+    out[neg, 1] = (255 * (1 + v[neg]) * 0.2).astype(np.uint8)
+    # red channel dominates for positive values
+    out[pos, 0] = (255 * (1 - v[pos])).astype(np.uint8)
+    out[pos, 1] = (255 * (1 - v[pos]) * 0.2).astype(np.uint8)
+    out[pos, 2] = (255 * (1 - v[pos]) * 0.2).astype(np.uint8)
+    return out
 
 
 def demo_autodiff() -> None:
@@ -119,6 +153,12 @@ def demo_fgsm(model, Xt, yt) -> None:
         ("adversarial", adv[0]),
         ("|perturbation| x10", np.abs(delta) * 10),
     ], os.path.join(OUT_DIR, "fgsm.png"), "FGSM demo")
+    _save_grid([
+        ("original", x[0]),
+        ("adversarial", adv[0]),
+        ("|perturbation| x10", np.abs(delta) * 10),
+    ], os.path.join(os.path.dirname(OUT_DIR), "docs", "fgsm_demo.png"),
+        "FGSM demo (README)")
     print(f"  max |pixel change| = {np.abs(adv - x).max():.3f}")
 
 

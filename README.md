@@ -1,5 +1,10 @@
 # Neural Networks from Scratch, and Adversarial Examples
 
+> **Full write-up:** [report/report.md](report/report.md) — the
+> complete project report: the autodiff engine, every layer's
+> hand-derived backward, all experiments with tables, and the
+> lessons learned.
+
 I built a neural network framework from scratch — my own reverse-mode
 autodiff engine, dense and convolutional layers, batch norm, dropout,
 three optimisers, a training loop — and then used it to study
