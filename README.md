@@ -90,6 +90,40 @@ python3 experiments/cnn_seed_sweep.py        # is the CNN edge real? (no)
 python3 experiments/adversarial_study.py
 ```
 
+## How to verify my work
+
+Every headline number in this README is reproducible. The quickest
+path, in order:
+
+```bash
+python3 -m pytest tests/ -q          # 36 tests: gradient checks vs finite
+                                     # differences, training, attacks
+                                     # (~1 s, no downloads)
+python3 verify.py                    # 8 end-to-end checks, prints each
+                                     # headline claim as it passes
+                                     # (downloads MNIST, ~2 min)
+```
+
+`verify.py` maps the claims to checks as follows:
+
+| Headline claim | Check |
+|---|---|
+| Autodiff gradients are correct | `check_autodiff`: every layer's backward vs numeric gradients (~1e-9) |
+| Training reaches >85% on MNIST | `check_training_accuracy` |
+| FGSM/PGD flip predictions | `check_attacks` (flip rates printed per eps) |
+| Targeted attacks steer into a class | `check_targeted` |
+| Adversarial training defends (0.16 → 0.54) | `check_adversarial_training` |
+| Examples transfer between models | `check_transfer` |
+| Linearity ratio ≈ 1.00 at small eps | `check_linearity` |
+
+For the CNN results (97.8% vs 95.9%, 8.5× fewer parameters) and the
+seed-sweep that shows the Fashion-MNIST "win" was noise:
+
+```bash
+python3 experiments/mlp_vs_cnn.py       # ~20 min
+python3 experiments/cnn_seed_sweep.py   # ~30 min, CSV in results/
+```
+
 ## What I learned
 
 - **Numerical gradient checking is non-negotiable.** It caught a real
