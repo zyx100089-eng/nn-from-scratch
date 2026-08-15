@@ -4,42 +4,40 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-> **Full write-up:** [report/report.md](report/report.md) — the
-> complete project report: the autodiff engine, every layer's
-> hand-derived backward, all experiments with tables, and the
-> lessons learned.
+> **Full write-up:** [report/report.md](report/report.md)
 
-I built a neural network framework from scratch — my own reverse-mode
-autodiff engine, dense and convolutional layers, batch norm, dropout,
-three optimisers, a training loop — and then used it to study
-**adversarial examples**: perturbations invisible to the human eye that
-flip a model's predictions.
+I wanted to understand what "the gradient of the loss" actually means,
+so I built the whole thing: a reverse-mode autodiff engine, dense and
+convolutional layers, batch norm, dropout, three optimisers, a
+training loop — no PyTorch, no TensorFlow, no autograd library. Then I
+used my own framework to study **adversarial examples**: perturbations
+too small for a human to see that completely flip a model's
+predictions.
 
-No PyTorch, no TensorFlow, no autograd library. Every gradient is
-either the chain rule applied by my engine or a hand-derived backward
-rule (convolution, max pooling, batch norm), all verified against
-numerical differentiation.
+Every gradient in this repo is either the chain rule applied by my
+engine, or a hand-derived backward rule (convolution, max pooling,
+batch norm). All of it is checked against numerical differentiation.
 
 ## The story in one paragraph
 
-I trained an MLP on MNIST to 89.4% test accuracy, then showed that a
-perturbation bounded by 0.1 per pixel — invisible to the eye — flips
-~76% of its correct predictions (FGSM) and ~84% with an iterated
-attack (PGD). I measured *why* this works: a ReLU network is locally
-linear in its input, so the logit change from a perturbation matches
-the gradient prediction to a ratio of 1.00 at small scales — the
-premise of Goodfellow's 2014 explanation, verified numerically rather
-than asserted. I then showed the standard defence (adversarial
-training) raises survival under attack from 16% to 54%, and that
-adversarial examples transfer between different architectures.
+An MLP trained from scratch on MNIST reaches 89.4% test accuracy.
+A perturbation bounded by 0.1 per pixel — invisible to the eye —
+flips ~76% of its correct predictions with one gradient step (FGSM),
+and ~84% when you iterate (PGD). I measured *why*: a ReLU network is
+locally linear in its input, so a small perturbation moves the logits
+exactly as the gradient predicts — ratio 1.00 at small scales. That's
+Goodfellow's 2014 explanation, but measured rather than asserted.
+Adversarial training (the standard defence) raises survival under
+attack from 16% to 54%, and adversarial examples transfer between
+different architectures.
 
 ![FGSM demo: original, adversarial, perturbation x10](docs/fgsm_demo.png)
 
-*From `demo.py`: a correctly-classified "4" (86.4% confidence),
-the same image after an FGSM step bounded by 0.1 per pixel — now
+*From `demo.py`: a correctly-classified "4" (86.4% confidence), the
+same image after an FGSM step bounded by 0.1 per pixel — now
 classified as a "9" — and the perturbation itself magnified 10×.*
 
-## What's in the repo
+## Layout
 
 ```
 src/
@@ -116,6 +114,14 @@ python3 verify.py                    # 8 end-to-end checks, prints each
 | Examples transfer between models | `check_transfer` |
 | Linearity ratio ≈ 1.00 at small eps | `check_linearity` |
 
+The experiment script also persists everything:
+
+- `results/attack_flip_rates.csv` — FGSM/PGD flip rates per eps
+- `results/targeted_attack.csv` — targeted flip rate
+- `results/linearity_ratios.csv` — the measured linearity ratios
+- `results/transfer_attack.csv` — white-box vs transfer rates
+- `results/adversarial_training.csv` — survival before/after defence
+
 For the CNN results (97.8% vs 95.9%, 8.5× fewer parameters) and the
 seed-sweep that shows the Fashion-MNIST "win" was noise:
 
@@ -156,19 +162,19 @@ python3 experiments/cnn_seed_sweep.py   # ~30 min, CSV in results/
 
 ## How this came together
 
-I started this project last summer because I kept reading "the gradient
-of the loss" in articles and realising I couldn't have written it
-myself. So I did. The first autodiff attempt sat at 11.8% accuracy for
-two evenings before I found the throwaway-tensor bug — flat loss, no
-error message, just wrong. That experience is why every layer in this
-repo has a numerical gradient check; I don't trust hand-derived
-backwards anymore.
+I started this project last summer because I kept reading "the
+gradient of the loss" in articles and realising I couldn't have
+written it myself. So I did. The first autodiff attempt sat at 11.8%
+accuracy for two evenings before I found the throwaway-tensor bug —
+flat loss, no error message, just wrong. That experience is why every
+layer in this repo has a numerical gradient check; I don't trust
+hand-derived backwards anymore.
 
 The adversarial half grew out of frustration: my MNIST model was
 "working", but I had no idea how fragile it was until I attacked it.
-The moment that surprised me most was the linearity ratio coming out at
-1.00 — Goodfellow's argument sounded like hand-waving when I read the
-paper, and then it just... measured true. And the CNN/Fashion-MNIST
+The moment that surprised me most was the linearity ratio coming out
+at 1.00 — Goodfellow's argument sounded like hand-waving when I read
+the paper, and then it just... measured true. And the CNN/Fashion-MNIST
 seed sweep taught me the opposite lesson: my first "result" there was
 noise, and I'm glad the numbers forced me to admit it.
 
