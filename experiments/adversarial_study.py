@@ -67,11 +67,21 @@ def run():
     sr = target_success(model, xs, ys, target, 0.1,
                         attack=pgd_targeted, steps=10)
     print(f"  PGD-targeted -> {target}: flip rate {sr:.3f}")
+    with open("results/targeted_attack.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["target", "eps", "flip_rate"])
+        w.writeheader()
+        w.writerow({"target": target, "eps": 0.1, "flip_rate": round(sr, 4)})
 
     print("\n=== The linearity argument, measured ===")
+    lin_rows = []
     for eps in (1e-3, 0.1):
         lc = linearity_check(model, xs[:50], ys[:50], eps=eps)
         print(f"  eps={eps}: actual/predicted logit change ratio {lc['ratio']:.2f}")
+        lin_rows.append({"eps": eps, "ratio": round(lc["ratio"], 4)})
+    with open("results/linearity_ratios.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["eps", "ratio"])
+        w.writeheader()
+        w.writerows(lin_rows)
 
     print("\n=== The defence: adversarial training ===")
     plain = build_model()
@@ -101,10 +111,17 @@ def run():
     train(B, X, y, epochs=4, batch_size=256,
           optimiser=SGD(learning_rate=0.4, weight_decay=1e-4),
           seed=3, verbose=False)
+    tr_rows = []
     for eps in (0.1, 0.3):
         wb = attack_success(model, xs, ys, eps, attack=pgd, steps=10)
         tr = transfer_attack(model, B, xs, ys, eps, attack=pgd, steps=10)
         print(f"  eps={eps}: white-box {wb:.3f}   transfer {tr:.3f}")
+        tr_rows.append({"eps": eps, "white_box": round(wb, 4),
+                        "transfer": round(tr, 4)})
+    with open("results/transfer_attack.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["eps", "white_box", "transfer"])
+        w.writeheader()
+        w.writerows(tr_rows)
 
     print("\nDone.")
 
