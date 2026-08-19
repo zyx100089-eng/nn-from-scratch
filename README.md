@@ -1,24 +1,23 @@
 # Neural Networks from Scratch, and Adversarial Examples
 
 [![Tests](https://github.com/zyx100089-eng/nn-from-scratch/actions/workflows/tests.yml/badge.svg)](https://github.com/zyx100089-eng/nn-from-scratch/actions/workflows/tests.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 > **Full write-up:** [report/report.md](report/report.md)
 
-I wanted to understand what "the gradient of the loss" actually means,
-so I built the whole thing: a reverse-mode autodiff engine, dense and
-convolutional layers, batch norm, dropout, three optimisers, a
-training loop — no PyTorch, no TensorFlow, no autograd library. Then I
-used my own framework to study **adversarial examples**: perturbations
-too small for a human to see that completely flip a model's
-predictions.
+What does "the gradient of the loss" actually mean? I got tired of
+nodding along in articles without being able to write it myself, so I
+built the whole thing from nothing: a reverse-mode autodiff engine,
+dense and convolutional layers, batch norm, dropout, three optimisers,
+a training loop — no PyTorch, no TensorFlow, no autograd library.
+Then I turned that framework against its own models to study
+**adversarial examples**: perturbations too small for a human to see
+that completely flip a model's predictions.
 
 Every gradient in this repo is either the chain rule applied by my
 engine, or a hand-derived backward rule (convolution, max pooling,
 batch norm). All of it is checked against numerical differentiation.
 
-## The story in one paragraph
+## The story, compressed
 
 An MLP trained from scratch on MNIST reaches 89.4% test accuracy ([results/clean_accuracy.csv](results/clean_accuracy.csv)).
 A perturbation bounded by 0.1 per pixel — invisible to the eye —
@@ -37,7 +36,20 @@ different architectures.
 same image after an FGSM step bounded by 0.1 per pixel — now
 classified as a "9" — and the perturbation itself magnified 10×.*
 
-## Layout
+## Headline measurements
+
+| Measurement | Value |
+|---|---|
+| MLP test accuracy (MNIST, from scratch) | [89.4%](results/clean_accuracy.csv) |
+| FGSM eps=0.1 flip rate | ~76% of correct predictions |
+| PGD-10 eps=0.1 flip rate | ~84% |
+| Targeted PGD (eps=0.1) | ~63% steered into a chosen class |
+| Adversarial training (PGD-10 survival, eps=0.1) | 0.16 → 0.54 |
+| Transfer attack (eps=0.3) | ~99% of a different model's predictions |
+| Linearity ratio (eps=1e-3) | 1.00 — the model is locally linear |
+| CNN vs MLP on MNIST | 97.8% vs 95.9% with 8.5× fewer parameters |
+
+## What's where
 
 ```
 src/
@@ -56,20 +68,7 @@ demo.py              # the story, runnable end to end
 report/report.md     # full write-up
 ```
 
-## Key results
-
-| Measurement | Value |
-|---|---|
-| MLP test accuracy (MNIST, from scratch) | [89.4%](results/clean_accuracy.csv) |
-| FGSM eps=0.1 flip rate | ~76% of correct predictions |
-| PGD-10 eps=0.1 flip rate | ~84% |
-| Targeted PGD (eps=0.1) | ~63% steered into a chosen class |
-| Adversarial training (PGD-10 survival, eps=0.1) | 0.16 → 0.54 |
-| Transfer attack (eps=0.3) | ~99% of a different model's predictions |
-| Linearity ratio (eps=1e-3) | 1.00 — the model is locally linear |
-| CNN vs MLP on MNIST | 97.8% vs 95.9% with 8.5× fewer parameters |
-
-## Running
+## Run it
 
 ```bash
 python3 -m pytest tests/ -q     # unit tests (~1 s, no downloads)
@@ -88,7 +87,7 @@ python3 experiments/cnn_seed_sweep.py        # is the CNN edge real? (no)
 python3 experiments/adversarial_study.py
 ```
 
-## How to verify my work
+## Check the numbers
 
 Every headline number in this README is reproducible. The quickest
 path, in order:
@@ -130,7 +129,7 @@ python3 experiments/mlp_vs_cnn.py       # ~20 min
 python3 experiments/cnn_seed_sweep.py   # ~30 min, CSV in results/
 ```
 
-## What I learned
+## What I learned the hard way
 
 - **Numerical gradient checking is non-negotiable.** It caught a real
   bug: the common Softmax-backward shortcut (returning `dout`
