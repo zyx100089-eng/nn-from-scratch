@@ -103,4 +103,4 @@ class TestAttacks:
         y = _model.predict(x)
         sr = target_success(_model, x, y, 2, 0.4,
                             attack=pgd_targeted, steps=10)
-        assert sr >= 0.0
+        assert sr >= 0.5, f"targeted success rate was only {sr:.2f}"

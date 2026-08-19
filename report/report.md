@@ -27,7 +27,7 @@ The project has two halves that share one engine:
 
 The headline results, all verified by the test suite:
 
-- **89.4%** test accuracy on MNIST with a 784→128→64→10 MLP trained
+- **89.4%** test accuracy on MNIST with a 784→128→64→10 MLP trained ([results/clean_accuracy.csv](results/clean_accuracy.csv))
   from scratch.
 - A perturbation bounded by **0.1 per pixel** flips **~76%** of the
   model's correct predictions (FGSM), and **~84%** with an iterated
@@ -217,8 +217,10 @@ compared the *actual* logit change with the linear prediction `g·δ`:
 |----:|--------------------------------:|
 | 1e-5 | 1.00 |
 | 1e-3 | 1.00 |
-| 0.01 | 0.99 |
+| 0.01 | 0.98 |
 | 0.1 | 0.87 |
+
+(Saved in [results/linearity_ratios.csv](results/linearity_ratios.csv).)
 
 At small perturbation scales the ratio is exactly 1.00: the model
 really is locally linear, so the gradient genuinely points across a

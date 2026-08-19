@@ -49,6 +49,10 @@ def run():
           seed=2, verbose=False)
     acc = float((model.predict(Xt) == yt).mean())
     print(f"  test accuracy: {acc:.3f}")
+    with open("results/clean_accuracy.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["metric", "value"])
+        w.writeheader()
+        w.writerow({"metric": "test_accuracy", "value": round(acc, 4)})
 
     print("\n=== Attack flip rates ===")
     rows = []
@@ -74,7 +78,7 @@ def run():
 
     print("\n=== The linearity argument, measured ===")
     lin_rows = []
-    for eps in (1e-3, 0.1):
+    for eps in (1e-5, 1e-3, 0.01, 0.1):
         lc = linearity_check(model, xs[:50], ys[:50], eps=eps)
         print(f"  eps={eps}: actual/predicted logit change ratio {lc['ratio']:.2f}")
         lin_rows.append({"eps": eps, "ratio": round(lc["ratio"], 4)})

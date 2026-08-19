@@ -20,7 +20,7 @@ batch norm). All of it is checked against numerical differentiation.
 
 ## The story in one paragraph
 
-An MLP trained from scratch on MNIST reaches 89.4% test accuracy.
+An MLP trained from scratch on MNIST reaches 89.4% test accuracy ([results/clean_accuracy.csv](results/clean_accuracy.csv)).
 A perturbation bounded by 0.1 per pixel — invisible to the eye —
 flips ~76% of its correct predictions with one gradient step (FGSM),
 and ~84% when you iterate (PGD). I measured *why*: a ReLU network is
@@ -60,7 +60,7 @@ report/report.md     # full write-up
 
 | Measurement | Value |
 |---|---|
-| MLP test accuracy (MNIST, from scratch) | 89.4% |
+| MLP test accuracy (MNIST, from scratch) | [89.4%](results/clean_accuracy.csv) |
 | FGSM eps=0.1 flip rate | ~76% of correct predictions |
 | PGD-10 eps=0.1 flip rate | ~84% |
 | Targeted PGD (eps=0.1) | ~63% steered into a chosen class |
